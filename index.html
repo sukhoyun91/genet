@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지산종합사회복지관용 계산기</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Malgun Gothic",sans-serif;
+}
+
+body{
+    background:#1f2937;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.calculator{
+    width:390px;
+    background:#111827;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 15px 40px rgba(0,0,0,.35);
+}
+
+.title{
+    color:#fff;
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+.expression{
+    color:#bbb;
+    text-align:right;
+    height:25px;
+    font-size:18px;
+    overflow:hidden;
+}
+
+.display{
+    background:#000;
+    color:#00ff66;
+    text-align:right;
+    font-size:38px;
+    padding:18px;
+    border-radius:12px;
+    min-height:80px;
+    overflow:hidden;
+    margin-top:5px;
+    font-family:Consolas,monospace;
+}
+
+.buttons{
+    margin-top:18px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+}
+
+button{
+    height:68px;
+    border:none;
+    border-radius:12px;
+    font-size:24px;
+    cursor:pointer;
+    transition:.15s;
+}
+
+button:hover{
+    transform:scale(.96);
+}
+
+.number{
+    background:#374151;
+    color:#fff;
+}
+
+.operator{
+    background:#2563eb;
+    color:#fff;
+}
+
+.func{
+    background:#6b7280;
+    color:#fff;
+}
+
+.clear{
+    background:#dc2626;
+    color:#fff;
+}
+
+.equal{
+    background:#16a34a;
+    color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="calculator">
+
+<div class="title">
+지산종합사회복지관용
+</div>
+
+<div class="expression" id="expression"></div>
+
+<div class="display" id="display">
+0
+</div>
+
+<div class="buttons">
+
+<button class="clear" onclick="clearAll()">C</button>
+<button class="func" onclick="backspace()">⌫</button>
+<button class="func" onclick="percent()">%</button>
+<button class="operator" onclick="operator('/')">÷</button>
+
+<button class="number" onclick="number('7')">7</button>
+<button class="number" onclick="number('8')">8</button>
+<button class="number" onclick="number('9')">9</button>
+<button class="operator" onclick="operator('*')">×</button>
+
+<button class="number" onclick="number('4')">4</button>
+<button class="number" onclick="number('5')">5</button>
+<button class="number" onclick="number('6')">6</button>
+<button class="operator" onclick="operator('-')">-</button>
+
+<button class="number" onclick="number('1')">1</button>
+<button class="number" onclick="number('2')">2</button>
+<button class="number" onclick="number('3')">3</button>
+<button class="operator" onclick="operator('+')">+</button>
+
+<button class="func" onclick="plusMinus()">±</button>
+<button class="number" onclick="number('0')">0</button>
+<button class="number" onclick="decimal()">.</button>
+<button class="equal" onclick="calculate()">=</button>
+
+</div>
+
+</div>
+
+<script>
+
+let current="0";
+let previous="";
+let op=null;
+let reset=false;
+
+function format(num){
+
+if(num==="") return "";
+
+if(num.includes(".")){
+
+let p=num.split(".");
+return Number(p[0]).toLocaleString('ko-KR')+"."+p[1];
+
+}
+
+return Number(num).toLocaleString('ko-KR');
+
+}
+
+function refresh(){
+
+document.getElementById("display").textContent=format(current);
+
+let txt="";
+
+if(previous!==""){
+
+let symbol=op;
+
+if(symbol==="*") symbol="×";
+if(symbol==="/") symbol="÷";
+
+txt=format(previous)+" "+symbol;
+
+}
+
+document.getElementById("expression").textContent=txt;
+
+}
+
+function number(n){
+
+if(reset){
+
+current="0";
+reset=false;
+
+}
+
+let digits=current.replace(/\D/g,"");
+
+if(digits.length>=15) return;
+
+if(current==="0")
+current=n;
+else
+current+=n;
+
+refresh();
+
+}
+
+function decimal(){
+
+if(reset){
+
+current="0";
+reset=false;
+
+}
+
+if(!current.includes(".")){
+
+current+=".";
+
+refresh();
+
+}
+
+}
+
+function operator(o){
+
+if(op!==null){
+
+calculate();
+
+}
+
+previous=current;
+op=o;
+reset=true;
+
+refresh();
+
+}
+
+function calculate(){
+
+if(op===null) return;
+
+let a=parseFloat(previous);
+let b=parseFloat(current);
+let r=0;
+
+switch(op){
+
+case "+": r=a+b; break;
+case "-": r=a-b; break;
+case "*": r=a*b; break;
+case "/":
+
+if(b===0){
+
+alert("0으로 나눌 수 없습니다.");
+return;
+
+}
+
+r=a/b;
+break;
+
+}
+
+current=String(Number(r.toPrecision(15)));
+
+previous="";
+op=null;
+reset=true;
+
+refresh();
+
+}
+
+function clearAll(){
+
+current="0";
+previous="";
+op=null;
+reset=false;
+
+refresh();
+
+}
+
+function backspace(){
+
+if(reset) return;
+
+if(current.length>1){
+
+current=current.slice(0,-1);
+
+}else{
+
+current="0";
+
+}
+
+refresh();
+
+}
+
+function plusMinus(){
+
+current=String(-parseFloat(current));
+
+refresh();
+
+}
+
+function percent(){
+
+current=String(parseFloat(current)/100);
+
+refresh();
+
+}
+
+document.addEventListener("keydown",function(e){
+
+if(e.key>='0' && e.key<='9') number(e.key);
+
+if(e.key===".") decimal();
+
+if(e.key==="+"||e.key==="-"||e.key==="*"||e.key==="/") operator(e.key);
+
+if(e.key==="Enter") calculate();
+
+if(e.key==="Backspace"){
+
+e.preventDefault();
+backspace();
+
+}
+
+if(e.key==="Escape") clearAll();
+
+});
+
+refresh();
+
+</script>
+
+</body>
+</html>
